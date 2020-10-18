@@ -11,11 +11,6 @@ class HammingCode(LinearCode):
             P,
             np.eye(r),
         ], axis=-1)
-        G = np.concatenate([
-            np.eye(r),
-            P.T,
-        ], axis=-1)
         super(HammingCode, self).__init__(block_size=2 ** r - 1 - r,
                                           code_size=2 ** r - 1,
-                                          G=G,
                                           H=H)

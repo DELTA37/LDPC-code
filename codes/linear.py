@@ -16,12 +16,12 @@ class LinearCode(BaseCode):
             H = np.zeros((code_size - block_size, code_size), dtype=np.int32)
 
         if H is None:
-            P = G[:, block_size:]
-            H = np.concatenate([P.T, np.eye(code_size - block_size)])
+            P = G[:block_size, block_size:]  # block_size x (code_size - block_size)
+            H = np.concatenate([P.T, np.eye(code_size - block_size)], axis=1)  # (code_size - block_size) x code_size
 
         if G is None:
-            P = H[block_size:, :].T
-            G = np.concatenate([P, np.eye(block_size)])
+            P = H[:code_size - block_size, :block_size].T  # block_size x (code_size - block_size)
+            G = np.concatenate([P, np.eye(block_size)], axis=1)
 
         self.G = G
         self.H = H
