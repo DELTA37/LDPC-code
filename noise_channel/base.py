@@ -6,17 +6,20 @@ import math
 import pickle
 import io
 from typing import List, Any
+from codes.base import BaseCode
 
 
 class BaseChannel(object):
-    def __init__(self, block_size):
+    def __init__(self, coder: BaseCode):
         super(BaseChannel, self).__init__()
-        self.block_size = block_size
-        self.int_num_blocks = math.ceil(65 / block_size)
-        self.char_num_blocks = math.ceil(7 / block_size)
+        self.coder = coder
+        self.block_size = coder.block_size
+        self.code_size = coder.code_size
+        self.int_num_blocks = math.ceil(65 / self.block_size)
+        self.char_num_blocks = math.ceil(7 / self.block_size)
 
     def noise_block(self, x):
-        assert x.shape[0] == self.block_size
+        assert x.shape[0] == self.code_size
         raise NotImplementedError()
 
     def transfer(self, message: Any) -> Any:
@@ -34,9 +37,14 @@ class BaseChannel(object):
 
     def transfer_(self, x: np.ndarray) -> np.ndarray:
         x = self.pad_bits(x)
+        x1 = x
         blocks = self.split_on_blocks(x)
+        blocks = [self.coder.encode(block) for block in blocks]
         blocks = [self.noise_block(block) for block in blocks]
+        blocks = [self.coder.decode(block) for block in blocks]
         x = self.merge_blocks(blocks)
+        x2 = x
+        print(x1 - x2)
         x = self.unpad_bits(x)
         return x
 

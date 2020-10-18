@@ -2,6 +2,7 @@ import os
 import numpy as np
 import math
 import bitarray
+from typing import Union, List
 
 
 class BaseCode(object):
@@ -34,6 +35,14 @@ class BaseCode(object):
     @staticmethod
     def flip(x: np.ndarray) -> np.ndarray:
         return (x + 1) % 2
+
+    @staticmethod
+    def flip_bits(x: np.ndarray, bit_idx: Union[int, List[int]]) -> np.ndarray:
+        if not isinstance(bit_idx, list):
+            bit_idx = [bit_idx]
+        x = x.copy()
+        x[bit_idx] = (x[bit_idx] + 1) % 2
+        return x
 
     @staticmethod
     def hamming(a, b):

@@ -17,17 +17,28 @@ class LinearCode(BaseCode):
 
         if H is None:
             P = G[:block_size, block_size:]  # block_size x (code_size - block_size)
-            H = np.concatenate([P.T, np.eye(code_size - block_size)], axis=1)  # (code_size - block_size) x code_size
+            H = np.concatenate([P.T, np.eye(code_size - block_size, dtype=np.int32)], axis=1)  # (code_size - block_size) x code_size
 
         if G is None:
             P = H[:code_size - block_size, :block_size].T  # block_size x (code_size - block_size)
-            G = np.concatenate([P, np.eye(block_size)], axis=1)
+            G = np.concatenate([P, np.eye(block_size, dtype=np.int32)], axis=1)
 
         self.G = G
         self.H = H
+        print("G:")
+        print(self.G)
+        print("H:")
+        print(self.H)
 
     def encode(self, array: np.ndarray) -> np.ndarray:
-        return array.dot(self.G)
+        return self.matmul(array, self.G)
 
     def decode(self, array: np.ndarray) -> np.ndarray:
-        return array.dot(self.H)
+        array = array.copy()
+        e = self.matmul(self.H, array)
+        if not np.all(e == np.zeros(self.code_size - self.block_size, dtype=np.int32)):
+            print(e)
+            idx = np.argmax(np.all(e.reshape((1, self.code_size - self.block_size)) == self.H.T, axis=-1))
+            array[idx] = (array[idx] + 1) % 2
+            print(idx)
+        return array[:self.block_size]
