@@ -11,10 +11,18 @@ class LinearCode(BaseCode):
         super(LinearCode, self).__init__(block_size=block_size,
                                          code_size=code_size)
 
-        if G is None:
+        if G is None and H is None:
             G = np.zeros((block_size, code_size), dtype=np.int32)
-        if H is None:
             H = np.zeros((code_size - block_size, code_size), dtype=np.int32)
+
+        if H is None:
+            P = G[:, block_size:]
+            H = np.concatenate([P.T, np.eye(code_size - block_size)])
+
+        if G is None:
+            P = H[block_size:, :].T
+            G = np.concatenate([P, np.eye(block_size)])
+
         self.G = G
         self.H = H
 
