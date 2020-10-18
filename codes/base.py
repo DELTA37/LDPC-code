@@ -22,6 +22,10 @@ class BaseCode(object):
     def decode(self, array: np.ndarray) -> np.ndarray:
         raise NotImplementedError()
 
+    @staticmethod
+    def int2binary(x, zfill_num):
+        x = np.array(bitarray.bitarray(bin(x)[2:].zfill(zfill_num)).tolist(), dtype=np.int32)
+        return x
 
     @staticmethod
     def matmul(a: np.ndarray, x: np.ndarray) -> np.ndarray:
