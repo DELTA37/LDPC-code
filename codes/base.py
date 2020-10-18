@@ -12,6 +12,10 @@ class BaseCode(object):
         self.block_size = block_size
         self.code_size = code_size
 
+    @property
+    def rate(self):
+        return self.block_size / self.code_size
+
     def encode(self, array: np.ndarray) -> np.ndarray:
         raise NotImplementedError()
 
@@ -44,3 +48,6 @@ class BaseCode(object):
     @staticmethod
     def hamming(a, b):
         return np.sum((a + b) % 2)
+
+    def __repr__(self):
+        return "Code(%s, %s)" % (self.code_size, self.block_size)
