@@ -21,7 +21,7 @@ class LinearCode(BaseCode):
 
         if G is None:
             P = H[:code_size - block_size, :block_size].T  # block_size x (code_size - block_size)
-            G = np.concatenate([P, np.eye(block_size, dtype=np.int32)], axis=1)
+            G = np.concatenate([np.eye(block_size, dtype=np.int32), P], axis=1)
 
         self.G = G
         self.H = H
@@ -37,8 +37,6 @@ class LinearCode(BaseCode):
         array = array.copy()
         e = self.matmul(self.H, array)
         if not np.all(e == np.zeros(self.code_size - self.block_size, dtype=np.int32)):
-            print(e)
             idx = np.argmax(np.all(e.reshape((1, self.code_size - self.block_size)) == self.H.T, axis=-1))
             array[idx] = (array[idx] + 1) % 2
-            print(idx)
         return array[:self.block_size]
