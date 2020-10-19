@@ -37,14 +37,11 @@ class BaseChannel(object):
 
     def transfer_(self, x: np.ndarray) -> np.ndarray:
         x = self.pad_bits(x)
-        x1 = x
         blocks = self.split_on_blocks(x)
         blocks = [self.coder.encode(block) for block in blocks]
         blocks = [self.noise_block(block) for block in blocks]
         blocks = [self.coder.decode(block) for block in blocks]
         x = self.merge_blocks(blocks)
-        x2 = x
-        print(x1 - x2)
         x = self.unpad_bits(x)
         return x
 

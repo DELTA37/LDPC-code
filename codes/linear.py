@@ -1,5 +1,6 @@
 from .base import BaseCode
 import numpy as np
+from typing import Tuple
 
 
 class LinearCode(BaseCode):
@@ -40,3 +41,19 @@ class LinearCode(BaseCode):
             idx = np.argmax(np.all(e.reshape((1, self.code_size - self.block_size)) == self.H.T, axis=-1))
             array[idx] = (array[idx] + 1) % 2
         return array[:self.block_size]
+
+    @staticmethod
+    def bring_matrix_to_identity_residual_form(G: np.ndarray) -> Tuple[np.ndarray, bool]:
+        for i in range(G.shape[0]):
+            nz, = np.nonzero(G[i:, i])
+            if nz.shape[0] == 0:
+                y, x = np.nonzero(G[i:, i + 1:])
+                if y.shape[0] == 0:
+                    return G, False
+                G[:, [i, i + 1 + x[0]]] = G[:, [i + 1 + x[0], i]]
+            nz, = np.nonzero(G[i:, i])
+            idx = i + nz[0]
+            G[[i, idx]] = G[[idx, i]]
+            nz = np.concatenate([np.nonzero(G[:i, i])[0], nz[1:]], axis=0)
+            G[nz] = (G[nz] + G[i:i+1]) % 2
+        return G, True
