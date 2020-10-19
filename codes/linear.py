@@ -35,6 +35,7 @@ class LinearCode(BaseCode):
         return self.matmul(array, self.G)
 
     def decode(self, array: np.ndarray) -> np.ndarray:
+        # TODO: create different methods of decoding
         array = array.copy()
         e = self.matmul(self.H, array)
         if not np.all(e == np.zeros(self.code_size - self.block_size, dtype=np.int32)):
@@ -44,6 +45,7 @@ class LinearCode(BaseCode):
 
     @staticmethod
     def bring_matrix_to_identity_residual_form(G: np.ndarray) -> Tuple[np.ndarray, bool]:
+        # TODO: bring code to Cython
         for i in range(G.shape[0]):
             nz, = np.nonzero(G[i:, i])
             if nz.shape[0] == 0:

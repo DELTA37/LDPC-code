@@ -48,5 +48,11 @@ class BaseCode(object):
     def hamming(a, b):
         return np.sum((a + b) % 2)
 
+    def iter_codewords(self):
+        for i in range(2 ** self.block_size):
+            block = np.array(bitarray.bitarray(bin(i)[2:].zfill(self.block_size)).tolist(), dtype=np.int32)
+            code = self.encode(block)
+            yield block, code
+
     def __repr__(self):
         return "Code(%s, %s)" % (self.code_size, self.block_size)

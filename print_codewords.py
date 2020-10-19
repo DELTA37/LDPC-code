@@ -8,12 +8,7 @@ from codes.polynomial import PolynomialCode
 
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser()
-    parser.add_argument('message')
-    args = parser.parse_args()
     coder = PolynomialCode(3, np.array([1, 1, 1]))
-    # coder = HammingCode(5)
-    # coder = IdentityCode(5)
-    # channel = StraightChannel(coder)
-    channel = BernoulliChannel(coder)
-    print(channel.transfer(args.message))
+
+    for block, code in coder.iter_codewords():
+        print(f"{block} -> {code}")
