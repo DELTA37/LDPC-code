@@ -5,9 +5,10 @@ import bitarray
 import math
 import pickle
 import io
-from typing import List, Any
+from typing import List, Any, Tuple
 from PIL import Image
 from codes.base import BaseCode
+from tqdm import tqdm
 
 
 class BaseChannel(object):
@@ -23,35 +24,63 @@ class BaseChannel(object):
         assert x.shape[0] == self.code_size
         raise NotImplementedError()
 
-    def transfer(self, message: Any, use_pad=True) -> Any:
+    def transfer(self, message: Any, use_smart_pad=False) -> Any:
         f = io.BytesIO()
         pickle.dump(message, f)
         f.seek(0)
         x = bitarray.bitarray()
         x.fromfile(f)
         x = np.array(x.tolist(), dtype=np.int32)
-        x = self.transfer_(x, use_pad=use_pad)
+        x = self.transfer_(x, use_smart_pad=use_smart_pad)
         x = bitarray.bitarray(''.join(map(str, (x % 2).tolist())))
         f = io.BytesIO(x.tobytes())
         f.seek(0)
         return pickle.load(f)
 
+    def transfer_string(self, message: str, use_smart_pad=False) -> str:
+        x = self.string2bit(message)
+        x = self.transfer_(x, use_smart_pad=use_smart_pad)
+        return self.bit2string(x)
+
+    def transfer_int(self, message: int, use_smart_pad=False) -> int:
+        x = self.int2bit(message)
+        x = self.transfer_(x, use_smart_pad=use_smart_pad)
+        return self.bit2int(x)
+
     def transfer_image(self, image: Image.Image):
-        pass
+        image = np.expand_dims(np.array(image), axis=-1)  # append pack dim
+        image_bin = np.unpackbits(image, axis=-1)
+        image_bin = np.reshape(image_bin, [image_bin.shape[0], image_bin.shape[1], -1])
+        h, w, d = image_bin.shape
+
+        image_bin = self.transfer_(image_bin.flatten(), use_smart_pad=False).reshape([h, w, d])
+
+        image = np.packbits(image_bin.reshape([image_bin.shape[0], image_bin.shape[1], -1, 8]), axis=-1)
+        image = np.squeeze(image, axis=-1)  # remove pack dim
+        if image.shape[2] == 1:
+            image = np.squeeze(image, axis=-1)  # remove dim for gray image
+        return Image.fromarray(image)
 
     def transfer_audio(self, audio):
         pass
 
-    def transfer_(self, x: np.ndarray, use_pad=True) -> np.ndarray:
-        if use_pad:
+    def transfer_(self, x: np.ndarray, use_smart_pad=True) -> np.ndarray:
+        if use_smart_pad:
             x = self.pad_bits(x)
+        else:
+            x, l = self.pad_bits_simple(x)
         blocks = self.split_on_blocks(x)
-        blocks = [self.coder.encode(block) for block in blocks]
-        blocks = [self.noise_block(block) for block in blocks]
-        blocks = [self.coder.decode(block) for block in blocks]
+        print("Encoding...")
+        blocks = [self.coder.encode(block) for block in tqdm(blocks)]
+        print("Transfering...")
+        blocks = [self.noise_block(block) for block in tqdm(blocks)]
+        print("Decoding...")
+        blocks = [self.coder.decode(block) for block in tqdm(blocks)]
         x = self.merge_blocks(blocks)
-        if use_pad:
+        if use_smart_pad:
             x = self.unpad_bits(x)
+        else:
+            x = self.unpad_bits_simple(x, l)
         return x
 
     def split_on_blocks(self, x: np.ndarray) -> List[np.ndarray]:
@@ -93,6 +122,14 @@ class BaseChannel(object):
         x = ''.join(map(str, (x % 2).tolist()))
         x = int(x, 2)
         return x
+
+    def pad_bits_simple(self, x: np.ndarray) -> Tuple[np.ndarray, int]:
+        l = x.shape[0]
+        red = (self.block_size - x.shape[0] % self.block_size) % self.block_size
+        return np.concatenate([x, np.zeros(red, dtype=np.int32)], axis=0), l
+
+    def unpad_bits_simple(self, x: np.ndarray, l: int) -> np.ndarray:
+        return x[:l]
 
     def pad_bits(self, x: np.ndarray) -> np.ndarray:
         l = self.int2bit(x.shape[0])
