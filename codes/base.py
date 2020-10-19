@@ -46,11 +46,48 @@ class BaseCode(object):
 
     @staticmethod
     def hamming(a, b):
-        return np.sum((a + b) % 2)
+        return np.count_nonzero((a + b) % 2)
+
+    @staticmethod
+    def hamming_weight(a):
+        return np.count_nonzero(a)
+
+    def get_messages(self):
+        """
+        Matrix of all messages.
+        """
+        M = np.empty([2 ** self.block_size, self.block_size], dtype=np.int32)
+        for i in range(0, 2 ** self.block_size):
+            M[i] = self.int2binary(i, self.block_size)
+        return M
+
+    def get_codewords(self):
+        """
+        Matrix of all codewords.
+        """
+        C = np.empty([2 ** self.block_size, self.code_size], dtype=np.int32)
+        for i in range(0, 2 ** self.block_size):
+            C[i] = self.encode(self.int2binary(i, self.block_size))
+        return C
+
+    def calc_dmin(self):
+        dmin = self.block_size
+        for code in self.iter_codewords():
+            w = self.hamming_weight(code)
+            dmin = dmin if w == 0 else min(dmin, w)
+        return dmin
+
+    def iter_blocks(self):
+        for i in range(2 ** self.block_size):
+            yield self.int2binary(i, self.block_size)
 
     def iter_codewords(self):
         for i in range(2 ** self.block_size):
-            block = np.array(bitarray.bitarray(bin(i)[2:].zfill(self.block_size)).tolist(), dtype=np.int32)
+            yield self.encode(self.int2binary(i, self.block_size))
+
+    def iter_blocks_codewords(self):
+        for i in range(2 ** self.block_size):
+            block = self.int2binary(i, self.block_size)
             code = self.encode(block)
             yield block, code
 

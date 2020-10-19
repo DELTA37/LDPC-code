@@ -5,6 +5,7 @@ import numpy as np
 class PolynomialCode(LinearCode):
     def __init__(self, block_size, q):
         code_size = block_size + q.shape[0] - 1
+        self.q = q
         self.degree = q.shape[0] - 1
         self.block_size = block_size
         self.code_size = code_size

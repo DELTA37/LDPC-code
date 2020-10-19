@@ -6,6 +6,7 @@ import math
 import pickle
 import io
 from typing import List, Any
+from PIL import Image
 from codes.base import BaseCode
 
 
@@ -22,27 +23,35 @@ class BaseChannel(object):
         assert x.shape[0] == self.code_size
         raise NotImplementedError()
 
-    def transfer(self, message: Any) -> Any:
+    def transfer(self, message: Any, use_pad=True) -> Any:
         f = io.BytesIO()
         pickle.dump(message, f)
         f.seek(0)
         x = bitarray.bitarray()
         x.fromfile(f)
         x = np.array(x.tolist(), dtype=np.int32)
-        x = self.transfer_(x)
+        x = self.transfer_(x, use_pad=use_pad)
         x = bitarray.bitarray(''.join(map(str, (x % 2).tolist())))
         f = io.BytesIO(x.tobytes())
         f.seek(0)
         return pickle.load(f)
 
-    def transfer_(self, x: np.ndarray) -> np.ndarray:
-        x = self.pad_bits(x)
+    def transfer_image(self, image: Image.Image):
+        pass
+
+    def transfer_audio(self, audio):
+        pass
+
+    def transfer_(self, x: np.ndarray, use_pad=True) -> np.ndarray:
+        if use_pad:
+            x = self.pad_bits(x)
         blocks = self.split_on_blocks(x)
         blocks = [self.coder.encode(block) for block in blocks]
         blocks = [self.noise_block(block) for block in blocks]
         blocks = [self.coder.decode(block) for block in blocks]
         x = self.merge_blocks(blocks)
-        x = self.unpad_bits(x)
+        if use_pad:
+            x = self.unpad_bits(x)
         return x
 
     def split_on_blocks(self, x: np.ndarray) -> List[np.ndarray]:

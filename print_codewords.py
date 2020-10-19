@@ -8,7 +8,13 @@ from codes.polynomial import PolynomialCode
 
 
 if __name__ == '__main__':
-    coder = PolynomialCode(3, np.array([1, 1, 1]))
+    coder = HammingCode(3)
+    # coder = PolynomialCode(3, np.array([1, 1, 1]))
 
-    for block, code in coder.iter_codewords():
+    for block, code in coder.iter_blocks_codewords():
         print(f"{block} -> {code}")
+
+    dmin = coder.calc_dmin()
+    print(f"dmin: {dmin}")
+    print(f"max error detect: {dmin - 1}")
+    print(f"max error correct: {(dmin - 1) // 2}")
