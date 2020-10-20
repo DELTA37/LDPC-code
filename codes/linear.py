@@ -35,13 +35,13 @@ class LinearCode(BaseCode):
         return self.matmul(array, self.G)
 
     def decode(self, array: np.ndarray) -> np.ndarray:
-        # TODO: create different methods of decoding
-        array = array.copy()
+        # TODO: table of error patterns
+        raise NotImplementedError()
+
+    def check_has_error(self, array: np.ndarray):
         e = self.matmul(self.H, array)
-        if not np.all(e == np.zeros(self.code_size - self.block_size, dtype=np.int32)):
-            idx = np.argmax(np.all(e.reshape((1, self.code_size - self.block_size)) == self.H.T, axis=-1))
-            array[idx] = (array[idx] + 1) % 2
-        return array[:self.block_size]
+        print(e)
+        return not np.all(e == np.zeros(self.code_size - self.block_size, dtype=np.int32))
 
     @staticmethod
     def bring_matrix_to_identity_residual_form(G: np.ndarray) -> Tuple[np.ndarray, bool]:

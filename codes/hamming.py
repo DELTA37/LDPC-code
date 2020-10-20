@@ -14,3 +14,11 @@ class HammingCode(LinearCode):
         super(HammingCode, self).__init__(block_size=2 ** r - 1 - r,
                                           code_size=2 ** r - 1,
                                           H=H)
+
+    def decode(self, array: np.ndarray) -> np.ndarray:
+        array = array.copy()
+        e = self.matmul(self.H, array)
+        if not np.all(e == np.zeros(self.code_size - self.block_size, dtype=np.int32)):
+            idx = np.argmax(np.all(e.reshape((1, self.code_size - self.block_size)) == self.H.T, axis=-1))
+            array[idx] = (array[idx] + 1) % 2
+        return array[:self.block_size]

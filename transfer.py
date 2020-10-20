@@ -7,16 +7,22 @@ from noise_channel.gaussian import GaussChannel
 from codes.hamming import HammingCode
 from codes.identity import IdentityCode
 from codes.polynomial import PolynomialCode
+from codes.poly_gf2 import poly1d_gf2
 
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('message')
     args = parser.parse_args()
-    # coder = PolynomialCode(3, np.array([1, 1, 1]))
-    coder = HammingCode(5)
+    coder = PolynomialCode(4, poly1d_gf2([1, 0, 1, 1]))
+    # message = np.array([0, 1, 0, 0])
+    # code = coder.encode(message)
+    # print(message, code)
+    # print(coder.check_has_error(code))
+    # print(coder.decode(code))
+    # coder = HammingCode(5)
     # coder = IdentityCode(5)
-    # channel = StraightChannel(coder)
+    channel = StraightChannel(coder)
     # channel = BernoulliChannel(coder)
-    channel = GaussChannel(coder, 330)
+    # channel = GaussChannel(coder, 330)
     print(channel.transfer_string(args.message))
