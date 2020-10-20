@@ -74,6 +74,9 @@ class poly1d_gf2(np.poly1d):
     def from_code(code):
         return poly1d_gf2(np.flipud(code))
 
+    def to_tuple(self):
+        return tuple(self._coeffs.tolist())
+
     def __div__(self, other):
         q, r = self.euclid_div(other)
         assert not r
