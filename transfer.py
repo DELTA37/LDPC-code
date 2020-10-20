@@ -19,7 +19,7 @@ if __name__ == '__main__':
     parser.add_argument('message')
     args = parser.parse_args()
 
-    coder = LDPCCode(15, 4, 5)
+    coder = LDPCCode(20, 4, 5)
     # coder = PolynomialCode(4, poly1d_gf2([1, 0, 1, 1]))
     # coder = PolynomialCode(12, poly1d_gf2([1, 0, 1, 0, 1, 1, 1, 0, 0, 0, 1, 1]))
 
