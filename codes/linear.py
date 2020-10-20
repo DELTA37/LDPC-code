@@ -13,8 +13,8 @@ class LinearCode(BaseCode):
                                          code_size=code_size)
 
         if G is None and H is None:
-            G = np.zeros((block_size, code_size), dtype=np.int32)
-            H = np.zeros((code_size - block_size, code_size), dtype=np.int32)
+            G = np.empty((block_size, code_size), dtype=np.int32)
+            H = np.empty((code_size - block_size, code_size), dtype=np.int32)
 
         if H is None:
             P = G[:block_size, block_size:]  # block_size x (code_size - block_size)
