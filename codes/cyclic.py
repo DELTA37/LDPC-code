@@ -1,6 +1,7 @@
-from .linear import LinearCode
+from .polynomial import PolynomialCode
+from .poly_gf2 import poly1d_gf2
 
 
-class CyclicCode(LinearCode):
-    def __init__(self):
-        super(CyclicCode, self).__init__()
+class CyclicCode(PolynomialCode):
+    def __init__(self, block_size, q: poly1d_gf2):
+        super(CyclicCode, self).__init__(block_size, q=q)
