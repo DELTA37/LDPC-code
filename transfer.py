@@ -9,14 +9,19 @@ from noise_channel.burst_error import BurstErrorChannel
 from codes.hamming import HammingCode
 from codes.identity import IdentityCode
 from codes.polynomial import PolynomialCode
-from codes.poly_gf2 import poly1d_gf2
+from codes.ldpc import LDPCCode
+
+from utils.poly_gf2 import poly1d_gf2
 
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('message')
     args = parser.parse_args()
-    coder = PolynomialCode(4, poly1d_gf2([1, 0, 1, 1]))
+
+    coder = LDPCCode(36)
+    exit()
+    # coder = PolynomialCode(4, poly1d_gf2([1, 0, 1, 1]))
     # coder = PolynomialCode(12, poly1d_gf2([1, 0, 1, 0, 1, 1, 1, 0, 0, 0, 1, 1]))
 
     """

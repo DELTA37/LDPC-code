@@ -1,5 +1,5 @@
 from .polynomial import PolynomialCode
-from .poly_gf2 import poly1d_gf2
+from utils.poly_gf2 import poly1d_gf2
 
 
 class CyclicCode(PolynomialCode):

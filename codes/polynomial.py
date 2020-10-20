@@ -1,5 +1,5 @@
 from .linear import LinearCode
-from .poly_gf2 import poly1d_gf2
+from utils.poly_gf2 import poly1d_gf2
 import numpy as np
 from itertools import combinations
 
