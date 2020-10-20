@@ -13,7 +13,6 @@ class GaussChannel(BaseChannel):
         self.sigma = 10 ** (-snr / 20)
 
     def noise_block(self, x):
+        x = (-1) ** x
         y = (x + np.random.randn(x.shape[0]) * self.sigma).astype(np.int32)
-        flip_idx = np.nonzero((x + y) % 2)[0].tolist()
-        print(f"n_errors: {len(flip_idx)}, flip_idx: {flip_idx}")
         return y

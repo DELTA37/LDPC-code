@@ -13,35 +13,26 @@ from codes.ldpc import LDPCCode
 
 from utils.poly_gf2 import poly1d_gf2
 
-
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('message')
+    parser.add_argument('snr', type=float)
+    parser.add_argument('channel_snr', type=float)
     args = parser.parse_args()
 
-    coder = LDPCCode(15, 4, 5)
+    snr = args.snr
+    channel_snr = args.channel_snr
+    coder = LDPCCode(15, 4, 5, snr=snr)
     # coder = PolynomialCode(4, poly1d_gf2([1, 0, 1, 1]))
     # coder = PolynomialCode(12, poly1d_gf2([1, 0, 1, 0, 1, 1, 1, 0, 0, 0, 1, 1]))
 
-    # """
+    err_num = 0
+    count = 0
     for message in coder.iter_blocks():
-        code = (-1) ** coder.encode(message) + np.random.randn(coder.code_size) * 10 ** (-coder.snr / 20)
+        code = (-1) ** coder.encode(message) + np.random.randn(coder.code_size) * (10 ** (-channel_snr / 20))
         message_re = coder.decode(code)
-        print(message, code, message_re)
         if np.any(message != message_re):
-            print("Error")
-            exit()
-    print("Success!")
-    exit()
-    #"""
-    # print(message, code)
-    # print(coder.check_has_error(code))
-    # print(coder.decode(code))
-    # coder = HammingCode(5)
-    # coder = IdentityCode(5)
+            print(message, code, message_re)
+            err_num += 1
+        count += 1
 
-    # channel = BurstErrorChannel(coder, 1)
-    # channel = StraightChannel(coder)
-    # channel = BernoulliChannel(coder)
-    channel = GaussChannel(coder, coder.snr)
-    print(channel.transfer_string(args.message))
+    print(f"Error rate: {err_num / count}")

@@ -2,6 +2,7 @@ from .base import BaseCode
 import numpy as np
 from typing import Tuple
 import scipy
+import scipy.sparse
 
 
 class LinearCode(BaseCode):
@@ -33,16 +34,14 @@ class LinearCode(BaseCode):
         print(self.H)
 
     def encode(self, array: np.ndarray) -> np.ndarray:
-        return self.matmul(array, self.G)
+        return self.binaryproduct(array, self.G)
 
     def decode(self, array: np.ndarray) -> np.ndarray:
         # TODO: table of error patterns
         raise NotImplementedError()
 
     def check_has_error(self, array: np.ndarray):
-        e = self.matmul(self.H, array)
-        print(e)
-        return not np.all(e == np.zeros(self.code_size - self.block_size, dtype=np.int32))
+        return not (self.binaryproduct(self.H, array) == 0).all()
 
     @staticmethod
     def bring_matrix_to_identity_residual_form(G: np.ndarray) -> Tuple[np.ndarray, bool]:
@@ -152,3 +151,17 @@ class LinearCode(BaseCode):
         except AttributeError:
             pass
         return A % 2
+
+    @staticmethod
+    def get_bits_and_nodes(H):
+        """Return bits and nodes of a parity-check matrix H."""
+        if type(H) != scipy.sparse.csr_matrix:
+            bits_indices, bits = np.where(H)
+            nodes_indices, nodes = np.where(H.T)
+        else:
+            bits_indices, bits = scipy.sparse.find(H)[:2]
+            nodes_indices, nodes = scipy.sparse.find(H.T)[:2]
+        bits_histogram = np.bincount(bits_indices)
+        nodes_histogram = np.bincount(nodes_indices)
+
+        return bits_histogram, bits, nodes_histogram, nodes
