@@ -65,4 +65,4 @@ class PolynomialCode(LinearCode):
         _, s = code.euclid_div(self.q)
         if not s:
             return (code // poly1d_gf2.create_basis(self.q.order)).to_code(zfill=self.block_size)
-        raise NotImplementedError()
+        return (code // poly1d_gf2.create_basis(self.q.order)).to_code(zfill=self.block_size)

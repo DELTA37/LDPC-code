@@ -14,7 +14,7 @@ class poly1d_gf2(np.poly1d):
         self._coeffs = np.trim_zeros(self._coeffs, 'f')
 
     def __bool__(self):
-        return len(self._coeffs) > 1 or (len(self._coeffs) == 1 and self._coeffs[0])
+        return len(self._coeffs) > 1 or (len(self._coeffs) == 1 and bool(self._coeffs[0]))
 
     def __abs__(self):
         return self

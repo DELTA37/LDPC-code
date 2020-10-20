@@ -1,8 +1,10 @@
 import argparse
 import numpy as np
+
 from noise_channel.straight import StraightChannel
 from noise_channel.bernoulli import BernoulliChannel
 from noise_channel.gaussian import GaussChannel
+from noise_channel.burst_error import BurstErrorChannel
 
 from codes.hamming import HammingCode
 from codes.identity import IdentityCode
@@ -22,7 +24,9 @@ if __name__ == '__main__':
     # print(coder.decode(code))
     # coder = HammingCode(5)
     # coder = IdentityCode(5)
-    channel = StraightChannel(coder)
+
+    channel = BurstErrorChannel(coder, 3)
+    # channel = StraightChannel(coder)
     # channel = BernoulliChannel(coder)
     # channel = GaussChannel(coder, 330)
     print(channel.transfer_string(args.message))
