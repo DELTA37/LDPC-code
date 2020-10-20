@@ -19,20 +19,10 @@ if __name__ == '__main__':
     parser.add_argument('message')
     args = parser.parse_args()
 
-    coder = LDPCCode(20, 4, 5)
+    coder = LDPCCode(1005, 4, 5)
     # coder = PolynomialCode(4, poly1d_gf2([1, 0, 1, 1]))
     # coder = PolynomialCode(12, poly1d_gf2([1, 0, 1, 0, 1, 1, 1, 0, 0, 0, 1, 1]))
-
-    # """
-    for message in coder.iter_blocks():
-        code = (-1) ** coder.encode(message) + np.random.randn(coder.code_size) * 10 ** (-coder.snr / 20)
-        message_re = coder.decode(code)
-        print(message, code, message_re)
-        if np.any(message != message_re):
-            print("Error")
-            exit()
-    print("Success!")
-    exit()
+    # exit()
     #"""
     # print(message, code)
     # print(coder.check_has_error(code))

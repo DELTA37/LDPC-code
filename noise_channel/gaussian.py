@@ -14,5 +14,5 @@ class GaussChannel(BaseChannel):
 
     def noise_block(self, x):
         x = (-1) ** x
-        y = (x + np.random.randn(x.shape[0]) * self.sigma).astype(np.int32)
+        y = x + np.random.randn(x.shape[0]) * self.sigma
         return y

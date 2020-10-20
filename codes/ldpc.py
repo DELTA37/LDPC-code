@@ -18,14 +18,20 @@ class LDPCCode(LinearCode):
         self.d_c = d_c
         self.snr = snr
         self.maxiter = maxiter
-        print(G.shape, H.shape)
         super(LDPCCode, self).__init__(block_size=G.shape[0], code_size=code_size,
-                                       H=H, G=G)
+                                       G=G, H=H)
 
-    @staticmethod
-    def create_parity_check_matrix(code_size: int, d_v: int, d_c: int):
+    def create_parity_check_matrix(self, code_size: int, d_v: int, d_c: int):
         """
-        Callager algo
+        2.1 Gallager ensemble
+        (Low-Density Parity-CheckCode Constructions
+        Enrico Paolini* and Mark Flanagan†*
+        Department of Electrical, Electronic and Information Engineering“G. Marconi”,
+        University of Bologna,
+        Via Venezia 52, Cesena, FC 47521,
+        Italy†School of Electrical, Electronic and Communications Engineering,
+        University College Dublin, Belfield, Dublin 4, Ireland)
+
         :param code_size:
         :param d_v:
         :param d_c:
@@ -79,14 +85,12 @@ class LDPCCode(LinearCode):
         # After this loop, Hrowreduced will have the form H_ss : | I_(n-k)  A |
 
         while True:
-            zeros = [i for i in range(min(n_equations, n_code))
-                     if not Hrowreduced[i, i]]
+            zeros = [i for i in range(min(n_equations, n_code)) if not Hrowreduced[i, i]]
             if len(zeros):
                 indice_colonne_a = min(zeros)
             else:
                 break
-            list_ones = [j for j in range(indice_colonne_a + 1, n_code)
-                         if Hrowreduced[indice_colonne_a, j]]
+            list_ones = [j for j in range(indice_colonne_a + 1, n_code) if Hrowreduced[indice_colonne_a, j]]
             if len(list_ones):
                 indice_colonne_b = min(list_ones)
             else:
