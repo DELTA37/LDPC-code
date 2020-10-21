@@ -74,8 +74,43 @@ class poly1d_gf2(np.poly1d):
     def from_code(code):
         return poly1d_gf2(np.flipud(code))
 
+    @staticmethod
+    def from_circulant(mat):
+        """
+        c_0
+        c_1
+        ...
+        c_r-1
+        :param mat:
+        :return:
+        """
+        return poly1d_gf2.from_code(mat[:, 0])
+
+    def to_circulant(self, r):
+        mat = np.zeros((r, r), dtype=np.int32)
+        q = self.to_cycle_field(r)
+        q = q.to_code(r)
+        for i in range(r):
+            mat[:, i] = np.roll(q, i)
+        return mat
+
+    def to_cycle_field(self, r):
+        """
+        x ** r = 1
+        :param r:
+        :return:
+        """
+        q = self
+        while q.order >= r:
+            h1, h2 = q.euclid_div(poly1d_gf2.create_basis(r))
+            q = h1 + h2
+        return q
+
     def to_tuple(self):
         return tuple(self._coeffs.tolist())
+
+    def weight(self):
+        return np.count_nonzero(self._coeffs)
 
     def __div__(self, other):
         q, r = self.euclid_div(other)

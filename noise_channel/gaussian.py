@@ -1,5 +1,6 @@
 from .base import BaseChannel
 import numpy as np
+from codes.bp_code import BPCode
 
 
 class GaussChannel(BaseChannel):
@@ -8,6 +9,7 @@ class GaussChannel(BaseChannel):
     """
     def __init__(self, coder,
                  snr: float = 20.):
+        assert isinstance(coder, BPCode), "This channel created only for Belief Propagation algorithms"
         super(GaussChannel, self).__init__(coder)
         self.snr = snr
         self.sigma = 10 ** (-snr / 20)
